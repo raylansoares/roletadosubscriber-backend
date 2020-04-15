@@ -1,0 +1,26 @@
+{
+  "name": "rose-server",
+  "version": "1.0.0",
+  "description": "Rose server with NodeJS",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raylansoares/rose-server.git"
+  },
+  "author": "Raylan Campos",
+  "license": "MIT",
+  "homepage": "https://github.com/raylansoares/rose-server#readme",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.22.0",
+    "babel-register": "^6.23.0"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.9.9",
+    "socket.io": "^2.3.0"
+  }
+}
