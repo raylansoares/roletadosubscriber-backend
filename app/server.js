@@ -25,8 +25,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api', routes);
 
 io.on('connection', function (socket) {
-    socket.on('client-chat', function (data) { // get message from rose-chatbot
-        socket.emit('server-confirm', data); // send message vonfirmatio to rose-chatbot
+    socket.on('requestPrize', function (data) {
+        socket.emit('selectPrize', data);
+        socket.broadcast.emit('selectPrize', data);
+    });
+
+    socket.on('sayPrize', function (data) {
+        socket.emit('confirmPrize', data);
+        socket.broadcast.emit('confirmPrize', data);
     });
 });
 
