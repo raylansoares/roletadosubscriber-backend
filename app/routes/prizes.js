@@ -1,14 +1,14 @@
 import express from 'express';
-import Reward from '../models/reward';
+import Prize from '../models/prize';
 
 const router = express.Router();
 
 router.route('/')
 	.get((req, res) => {
-		Reward.find({}, (err, rewards) => {
+		Prize.find({}, (err, prizes) => {
 			if(err)
 				res.send(err)
-			res.json(rewards);
+			res.json(prizes);
 		});
 	})
 

@@ -1,8 +1,10 @@
 import express from 'express';
-import rewardRoutes from './rewards';
+import prizeRoutes from './prizes';
+import subscriberRoutes from './subscribers';
 
 const router = express.Router();
 
-router.use('/rewards', rewardRoutes);
+router.use('/prizes', prizeRoutes);
+router.use('/subscribers', subscriberRoutes);
 
 export default router;

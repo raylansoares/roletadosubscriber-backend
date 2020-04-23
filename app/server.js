@@ -2,11 +2,14 @@ require('dotenv').config()
 
 import express from 'express';
 import bodyParser from 'body-parser';
+import cors from 'cors'
 import mongoose from 'mongoose';
 import http from 'http';
 import SocketIO from 'socket.io';
 
 import routes from './routes';
+
+import { create as createSubscriber } from './services/subscribers'
 
 const app = express(); 
 const server = http.Server(app);
@@ -22,6 +25,10 @@ mongoose.connect(`${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(cors({
+    origin: '*'
+}));
+
 app.use('/api', routes);
 
 io.on('connection', function (socket) {
@@ -34,7 +41,9 @@ io.on('connection', function (socket) {
     });
 
     // Event from rose-panel
-    socket.on('sayPrize', function (data) {
+    socket.on('sayPrize', async function (data) {
+        await createSubscriber(data)
+
         // Event to rose-chatbot
         socket.emit('confirmPrize', data);
         socket.broadcast.emit('confirmPrize', data);
