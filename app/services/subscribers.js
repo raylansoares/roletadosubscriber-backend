@@ -9,10 +9,8 @@ const find = async () => {
 
 const create = async (body) => {
 
-    const now = moment().subtract(3, 'hour')
-
-    body.created_at =  now
-    body.updated_at =  now
+    body.created_at =  moment()
+    body.updated_at =  moment()
 
     const subscriber = await Subscriber.create(body);
 
