@@ -3,8 +3,8 @@ import {
 	find as findPrizes,
 	create as createPrize,
 	findOne as findOnePrize,
-	update as updatePrize,
-	delete as deletePrize
+	updateOne as updatePrize,
+	deleteOne as deletePrize
 } from '../services/prizes'
 
 const router = express.Router();

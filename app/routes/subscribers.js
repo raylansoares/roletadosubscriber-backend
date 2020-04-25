@@ -3,8 +3,8 @@ import {
 	find as findSubscribers,
 	create as createSubscriber,
 	findOne as findOneSubscriber,
-	update as updateSubscriber,
-	delete as deleteSubscriber
+	updateOne as updateSubscriber,
+	deleteOne as deleteSubscriber
 } from '../services/subscribers'
 
 const router = express.Router();

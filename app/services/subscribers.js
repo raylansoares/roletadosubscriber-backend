@@ -13,7 +13,7 @@ const create = async (body) => {
     return subscriber
 }
 
-const update = async (_id, body) => {
+const updateOne = async (_id, body) => {
     body.updated_at =  moment()
     const subscriber = await Subscriber.findOneAndUpdate({ _id: _id}, body);
     return subscriber
@@ -32,7 +32,7 @@ const deleteOne = async (_id) => {
 export {
     find,
     create,
-    update,
+    updateOne,
     findOne,
     deleteOne
 }
