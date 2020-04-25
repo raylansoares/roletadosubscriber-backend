@@ -25,9 +25,15 @@ const findOne = async (_id) => {
     return prize
 }
 
+const deleteOne = async (_id) => {
+    const prize = await Prize.findByIdAndDelete(_id);
+    return prize
+}
+
 export {
     find,
     create,
     update,
-    findOne
+    findOne,
+    deleteOne
 }

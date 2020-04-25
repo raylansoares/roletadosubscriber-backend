@@ -4,6 +4,7 @@ import {
 	create as createSubscriber,
 	findOne as findOneSubscriber,
 	update as updateSubscriber,
+	delete as deleteSubscriber
 } from '../services/subscribers'
 
 const router = express.Router();
@@ -29,6 +30,12 @@ router.route('/:id')
 router.route('/:id')
 	.patch(async (req, res) => {
 		const data = await updateSubscriber(req.params.id, req.body)
+		res.json(data);
+	})
+
+router.route('/:id')
+	.delete(async (req, res) => {
+		const data = await deleteSubscriber(req.params.id)
 		res.json(data);
 	})
 

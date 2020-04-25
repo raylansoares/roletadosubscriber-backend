@@ -4,6 +4,7 @@ import {
 	create as createPrize,
 	findOne as findOnePrize,
 	update as updatePrize,
+	delete as deletePrize
 } from '../services/prizes'
 
 const router = express.Router();
@@ -28,7 +29,13 @@ router.route('/:id')
 
 router.route('/:id')
 	.patch(async (req, res) => {
-		const data = await updatePrize(req.params.id, req.body)
+		const data = await updatePrize(req.params.id)
+		res.json(data);
+	})
+
+router.route('/:id')
+	.delete(async (req, res) => {
+		const data = await deletePrize(req.params.id)
 		res.json(data);
 	})
 

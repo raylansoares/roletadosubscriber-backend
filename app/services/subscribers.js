@@ -24,9 +24,15 @@ const findOne = async (_id) => {
     return subscriber
 }
 
+const deleteOne = async (_id) => {
+    const subscriber = await Subscriber.findByIdAndDelete(_id);
+    return subscriber
+}
+
 export {
     find,
     create,
     update,
-    findOne
+    findOne,
+    deleteOne
 }
