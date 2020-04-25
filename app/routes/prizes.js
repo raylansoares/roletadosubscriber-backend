@@ -1,15 +1,12 @@
 import express from 'express';
-import Prize from '../models/prize';
+import { find as findPrizes } from '../services/prizes'
 
 const router = express.Router();
 
 router.route('/')
-	.get((req, res) => {
-		Prize.find({}, (err, prizes) => {
-			if(err)
-				res.send(err)
-			res.json(prizes);
-		});
+	.get(async (req, res) => {
+		const data = await findPrizes()
+		res.json(data);
 	})
 
 export default router;
