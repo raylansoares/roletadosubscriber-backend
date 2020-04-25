@@ -15,7 +15,8 @@ const create = async (body) => {
 
 const update = async (_id, body) => {
     body.updated_at =  moment()
-    const prize = await Prize.findOneAndUpdate({ _id: _id}, body);
+    await Prize.findOneAndUpdate({ _id: _id}, body);
+    const prize = await findOne(_id) 
     return prize
 }
 
