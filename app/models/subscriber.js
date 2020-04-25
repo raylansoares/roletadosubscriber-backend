@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
 const SubscriberSchema = new mongoose.Schema({
-	user: String,
-	prize: String,
+	username: String,
+	prizes: Array,
 	created_at: Date,
 	updated_at: Date
 });

@@ -9,7 +9,10 @@ import SocketIO from 'socket.io';
 
 import routes from './routes';
 
-import { create as createSubscriber } from './services/subscribers'
+import { 
+    create as createSubscriber,
+    update as updateSubscriber
+} from './services/subscribers'
 
 const app = express(); 
 const server = http.Server(app);
@@ -34,15 +37,23 @@ app.use('/api', routes);
 io.on('connection', function (socket) {
 
     // Event from rose-chatbot
-    socket.on('requestPrize', function (data) {
+    socket.on('requestPrize', async function (username) {
+        const subscriber = await createSubscriber({ username: username })
         // Event to rose-panel
-        socket.emit('selectPrize', data);
-        socket.broadcast.emit('selectPrize', data);
+        socket.emit('selectPrize', subscriber);
+        socket.broadcast.emit('selectPrize', subscriber);
+    });
+
+    // Event from rose-chatbot
+    socket.on('retryWheel', async function (subscriber) {
+        // Event to rose-panel
+        socket.emit('selectPrize', subscriber);
+        socket.broadcast.emit('selectPrize', subscriber);
     });
 
     // Event from rose-panel
     socket.on('sayPrize', async function (data) {
-        await createSubscriber(data)
+        await updateSubscriber(data._id, { prizes: data.prizes })
 
         // Event to rose-chatbot
         socket.emit('confirmPrize', data);
