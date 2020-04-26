@@ -11,7 +11,7 @@ import routes from './routes';
 
 import { 
     create as createSubscriber,
-    update as updateSubscriber
+    updateOne as updateSubscriber
 } from './services/subscribers'
 
 const app = express(); 
