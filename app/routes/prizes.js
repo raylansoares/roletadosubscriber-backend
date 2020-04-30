@@ -29,7 +29,7 @@ router.route('/:id')
 
 router.route('/:id')
 	.patch(async (req, res) => {
-		const data = await updatePrize(req.params.id)
+		const data = await updatePrize(req.params.id, req.body)
 		res.json(data);
 	})
 
