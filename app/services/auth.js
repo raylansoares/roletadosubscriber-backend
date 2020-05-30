@@ -9,6 +9,18 @@ import 'dayjs/locale/pt-br';
 
 dayjs.locale("pt-br");
 
+const checkAuth = async (headers) => {
+    if (!headers['x-auth-token'] || !headers['x-user-id']) return false
+
+    const findUser = await findUsers({ access_token: headers['x-auth-token'], user_id: headers['x-user-id'] })
+    if (!findUser[0]) return false
+
+    const validToken = dayjs().isBefore(dayjs(findUser[0].expires));
+    if (!validToken) return false
+
+    return true
+}
+
 const makeAuth = async (body) => {
     const code = body.code
     const redirect = body.redirect
@@ -60,6 +72,7 @@ const formatUserRequest = (twitchUserInfoResponse, accessTokenResponse) => {
 const formatUserResponse = (data) => {
     return {
         login: data.login,
+        user_id: data.user_id,
         display_name: data.display_name,
         profile_image_url: data.profile_image_url,
         access_token: data.access_token,
@@ -68,5 +81,6 @@ const formatUserResponse = (data) => {
 }
 
 export {
-    makeAuth
+    makeAuth,
+    checkAuth
 }

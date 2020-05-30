@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const PrizeSchema = new mongoose.Schema({
+	user_id: String,
 	name: String,
 	description: String,
 	color: String,

@@ -6,17 +6,28 @@ import {
 	updateOne as updateSubscriber,
 	deleteOne as deleteSubscriber
 } from '../services/subscribers'
+import { checkAuth } from '../services/auth'
 
 const router = express.Router();
 
+router.use(async (req, res, next) => {
+	const authorize = await checkAuth(req.headers)
+	if (!authorize) {
+		res.sendStatus(401)
+		return false
+	}
+	next()
+  })
+
 router.route('/')
 	.get(async (req, res) => {
-		const data = await findSubscribers()
+		const data = await findSubscribers({ user_id: req.headers['x-user-id'] })
 		res.json(data);
 	})
 
 router.route('/')
 	.post(async (req, res) => {
+		req.body.user_id = req.headers['x-user-id']
 		const data = await createSubscriber(req.body)
 		res.json(data);
 	})
