@@ -1,5 +1,8 @@
-import moment from 'moment'
 import Prize from '../models/prize'
+import dayjs from 'dayjs'
+import 'dayjs/locale/pt-br';
+
+dayjs.locale("pt-br");
 
 const find = async () => {
     const prizes = await Prize.find({}).sort('-created_at');
@@ -7,14 +10,14 @@ const find = async () => {
 }
 
 const create = async (body) => {
-    body.created_at =  moment()
-    body.updated_at =  moment()
+    body.created_at =  dayjs()
+    body.updated_at =  dayjs()
     const prize = await Prize.create(body);
     return prize
 }
 
 const updateOne = async (_id, body) => {
-    body.updated_at =  moment()
+    body.updated_at =  dayjs()
     await Prize.findOneAndUpdate({ _id: _id}, body);
     const prize = await findOne(_id) 
     return prize
