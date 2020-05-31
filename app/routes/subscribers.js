@@ -21,13 +21,13 @@ router.use(async (req, res, next) => {
 
 router.route('/')
 	.get(async (req, res) => {
-		const data = await findSubscribers({ user_id: req.headers['x-user-id'] })
+		const data = await findSubscribers({ code: req.headers['x-code'] })
 		res.json(data);
 	})
 
 router.route('/')
 	.post(async (req, res) => {
-		req.body.user_id = req.headers['x-user-id']
+		req.body.code = req.headers['x-code']
 		const data = await createSubscriber(req.body)
 		res.json(data);
 	})

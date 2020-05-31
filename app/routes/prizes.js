@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.route('/')
 	.get(async (req, res) => {
-		const data = await findPrizes({ user_id: req.headers['x-user-id'] })
+		const data = await findPrizes({ code: req.headers['x-code'] })
 		res.json(data);
 	})
 
@@ -27,7 +27,7 @@ router.use(async (req, res, next) => {
 
 router.route('/')
 	.post(async (req, res) => {
-		req.body.user_id = req.headers['x-user-id']
+		req.body.code = req.headers['x-code']
 		const data = await createPrize(req.body)
 		res.json(data);
 	})

@@ -5,11 +5,11 @@ import 'dayjs/locale/pt-br';
 dayjs.locale("pt-br");
 
 const find = async (queryParams) => {
-    const { user_id = null } = queryParams
+    const { code = null } = queryParams
 
     const query = {}
     
-    if (user_id) query.user_id = user_id
+    if (code) query.code = code
 
     const prizes = await Prize.find(query).sort('-created_at');
     return prizes

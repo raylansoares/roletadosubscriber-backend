@@ -10,9 +10,9 @@ import 'dayjs/locale/pt-br';
 dayjs.locale("pt-br");
 
 const checkAuth = async (headers) => {
-    if (!headers['x-auth-token'] || !headers['x-user-id']) return false
+    if (!headers['x-auth-token'] || !headers['x-code']) return false
 
-    const findUser = await findUsers({ access_token: headers['x-auth-token'], user_id: headers['x-user-id'] })
+    const findUser = await findUsers({ access_token: headers['x-auth-token'], code: headers['x-code'] })
     if (!findUser[0]) return false
 
     const validToken = dayjs().isBefore(dayjs(findUser[0].expires));
@@ -37,7 +37,7 @@ const makeAuth = async (body) => {
 
     const user = formatUserRequest(twitchUserInfoResponse, accessTokenResponse)
 
-    const findUser = await findUsers({ user_id: user.user_id })
+    const findUser = await findUsers({ code: user.code })
 
     let userData = {}
 
@@ -57,8 +57,10 @@ const getTokenUrl = (code, redirect) => {
 }
 
 const formatUserRequest = (twitchUserInfoResponse, accessTokenResponse) => {
+    const code = Buffer.from(twitchUserInfoResponse.data.data[0].id, 'utf8');
+    const userCode = code.toString('base64')
     return {
-        user_id: twitchUserInfoResponse.data.data[0].id,
+        code: userCode,
         login: twitchUserInfoResponse.data.data[0].login,
         email: twitchUserInfoResponse.data.data[0].email,
         display_name: twitchUserInfoResponse.data.data[0].display_name,
@@ -72,7 +74,7 @@ const formatUserRequest = (twitchUserInfoResponse, accessTokenResponse) => {
 const formatUserResponse = (data) => {
     return {
         login: data.login,
-        user_id: data.user_id,
+        code: data.code,
         display_name: data.display_name,
         profile_image_url: data.profile_image_url,
         access_token: data.access_token,

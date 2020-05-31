@@ -5,11 +5,11 @@ import 'dayjs/locale/pt-br';
 dayjs.locale("pt-br");
 
 const find = async (queryParams) => {
-    const { user_id = null, access_token = null } = queryParams
+    const { code = null, access_token = null } = queryParams
 
     const query = {}
     
-    if (user_id) query.user_id = user_id
+    if (code) query.code = code
 
     if (access_token) query.access_token = access_token
 

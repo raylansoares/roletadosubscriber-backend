@@ -38,17 +38,17 @@ io.on('connection', function (socket) {
 
     // Event from rose-chatbot
     socket.on('requestPrize', async function (data) {
-        const subscriber = await createSubscriber({ username: data.username, user_id: data.room })
+        const subscriber = await createSubscriber({ username: data.username, code: data.code })
         // Event to rose-panel
-        socket.emit('selectPrize', { room: data.room, subscriber: subscriber });
-        socket.broadcast.emit('selectPrize', { room: data.room, subscriber: subscriber });
+        socket.emit('selectPrize', { code: data.code, subscriber: subscriber });
+        socket.broadcast.emit('selectPrize', { code: data.code, subscriber: subscriber });
     });
 
     // Event from rose-panel
     socket.on('retryWheel', async function (data) {
         // Event to rose-panel
-        socket.emit('selectPrize', { room: data.user_id, subscriber: data.subscriber });
-        socket.broadcast.emit('selectPrize', { room: data.user_id, subscriber: data.subscriber });
+        socket.emit('selectPrize', { code: data.code, subscriber: data.subscriber });
+        socket.broadcast.emit('selectPrize', { code: data.code, subscriber: data.subscriber });
     });
 
     // Event from rose-panel
