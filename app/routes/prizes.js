@@ -10,6 +10,12 @@ import { checkAuth } from '../services/auth'
 
 const router = express.Router();
 
+router.route('/')
+	.get(async (req, res) => {
+		const data = await findPrizes({ user_id: req.headers['x-user-id'] })
+		res.json(data);
+	})
+
 router.use(async (req, res, next) => {
 	const authorize = await checkAuth(req.headers)
 	if (!authorize) {
@@ -18,12 +24,6 @@ router.use(async (req, res, next) => {
 	}
 	next()
   })
-
-router.route('/')
-	.get(async (req, res) => {
-		const data = await findPrizes({ user_id: req.headers['x-user-id'] })
-		res.json(data);
-	})
 
 router.route('/')
 	.post(async (req, res) => {
