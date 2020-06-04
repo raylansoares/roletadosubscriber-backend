@@ -28,8 +28,11 @@ mongoose.connect(`${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+let allowedOrigin = process.env.APP_HOST
+if (process.env.APP_PORT) allowedOrigin += `:${process.env.APP_PORT}`
+
 app.use(cors({
-    origin: `${process.env.APP_HOST}:${process.env.APP_PORT}`
+    origin : allowedOrigin
 }));
 
 app.use('/api', routes);
