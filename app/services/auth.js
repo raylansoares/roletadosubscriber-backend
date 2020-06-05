@@ -6,6 +6,7 @@ import {
 import axios from 'axios'
 import dayjs from 'dayjs'
 import 'dayjs/locale/pt-br';
+import { io } from '../config'
 
 dayjs.locale("pt-br");
 
@@ -40,9 +41,13 @@ const makeAuth = async (body) => {
     const findUser = await findUsers({ code: user.code })
 
     let userData = {}
-
-    if (findUser[0]) userData = await updateUser(findUser[0]._id, user)
-    else userData = await createUser(user)
+    
+    if (findUser[0]) {
+        userData = await updateUser(findUser[0]._id, user)
+    } else {
+        userData = await createUser(user)
+        io.emit('newChannel');
+    }
     
     return formatUserResponse(userData)
 }
