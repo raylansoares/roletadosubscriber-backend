@@ -61,3 +61,4 @@ config.io.on('connection', function (socket) {
 
 // start app on PORT
 config.server.listen(process.env.SERVER_PORT, () => console.log(`Started server on ${process.env.SERVER_PORT}`));
+config.server.listen(process.env.SERVER_SECURE_PORT, () => console.log(`Started secure server on ${process.env.SERVER_SECURE_PORT}`));
