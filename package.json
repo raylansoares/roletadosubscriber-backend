@@ -25,6 +25,7 @@
     "dayjs": "^1.8.28",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "fs": "0.0.1-security",
     "mongoose": "^5.9.9",
     "node-dev": "^4.0.0",
     "socket.io": "^2.3.0"
