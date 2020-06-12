@@ -12,12 +12,32 @@ dayjs.locale("pt-br");
 
 const checkAuth = async (headers) => {
     if (!headers['x-auth-token'] || !headers['x-code']) return false
-
+    
     const findUser = await findUsers({ access_token: headers['x-auth-token'], code: headers['x-code'] })
     if (!findUser[0]) return false
-
+    
     const validToken = dayjs().isBefore(dayjs(findUser[0].expires));
     if (!validToken) return false
+   
+    const needRefresh = dayjs().add(1, 'hour').isAfter(dayjs(findUser[0].expires));
+    if (needRefresh) await refreshToken(headers['x-auth-token'])
+
+    return true
+}
+
+const refreshToken = async (token) => {
+    const findUser = await findUsers({ access_token: token })
+    const refresh_token = findUser[0].refresh_token
+
+    const refreshAccessTokenUrl = getRefreshTokenUrl(refresh_token)
+    const refreshTokenResponse = await axios.post(refreshAccessTokenUrl)
+
+    const userData = await updateUser(findUser[0]._id, { 
+        access_token: refreshTokenResponse.data.access_token,
+        refresh_token: refreshTokenResponse.data.refresh_token
+    })
+
+    io.emit('updateToken', formatUserResponse(userData));
 
     return true
 }
@@ -59,6 +79,14 @@ const getTokenUrl = (code, redirect) => {
     `&code=${code}` +
     '&grant_type=authorization_code' +
     `&redirect_uri=${redirect}`
+}
+
+const getRefreshTokenUrl = (refreshToken) => {
+    return 'https://id.twitch.tv/oauth2/token' +
+    `?client_id=${process.env.CLIENT_ID}` +
+    `&client_secret=${process.env.CLIENT_SECRET}` +
+    '&grant_type=refresh_token' +
+    `&refresh_token=${refreshToken}`
 }
 
 const formatUserRequest = (twitchUserInfoResponse, accessTokenResponse) => {
