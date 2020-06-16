@@ -11,65 +11,77 @@ import { io } from '../config'
 dayjs.locale("pt-br");
 
 const checkAuth = async (headers) => {
-    if (!headers['x-auth-token'] || !headers['x-code']) return false
+    try {
+        if (!headers['x-auth-token'] || !headers['x-code']) return false
     
-    const findUser = await findUsers({ access_token: headers['x-auth-token'], code: headers['x-code'] })
-    if (!findUser[0]) return false
+        const findUser = await findUsers({ access_token: headers['x-auth-token'], code: headers['x-code'] })
+        if (!findUser[0]) return false
+        
+        const validToken = dayjs().isBefore(dayjs(findUser[0].expires));
+        if (!validToken) return false
     
-    const validToken = dayjs().isBefore(dayjs(findUser[0].expires));
-    if (!validToken) return false
-   
-    const needRefresh = dayjs().add(1, 'hour').isAfter(dayjs(findUser[0].expires));
-    if (needRefresh) await refreshToken(headers['x-auth-token'])
+        const needRefresh = dayjs().add(1, 'hour').isAfter(dayjs(findUser[0].expires));
+        if (needRefresh) await refreshToken(headers['x-auth-token'])
+    } catch (e) {
+        return false
+    }
 
     return true
 }
 
 const refreshToken = async (token) => {
-    const findUser = await findUsers({ access_token: token })
-    const refresh_token = findUser[0].refresh_token
+    try {
+        const findUser = await findUsers({ access_token: token })
+        const refresh_token = findUser[0].refresh_token
 
-    const refreshAccessTokenUrl = getRefreshTokenUrl(refresh_token)
-    const refreshTokenResponse = await axios.post(refreshAccessTokenUrl)
+        const refreshAccessTokenUrl = getRefreshTokenUrl(refresh_token)
+        const refreshTokenResponse = await axios.post(refreshAccessTokenUrl)
 
-    const userData = await updateUser(findUser[0]._id, { 
-        access_token: refreshTokenResponse.data.access_token,
-        refresh_token: refreshTokenResponse.data.refresh_token
-    })
+        const userData = await updateUser(findUser[0]._id, { 
+            access_token: refreshTokenResponse.data.access_token,
+            refresh_token: refreshTokenResponse.data.refresh_token
+        })
 
-    io.emit('updateToken', formatUserResponse(userData));
+        io.emit('updateToken', formatUserResponse(userData));
 
-    return true
+        return true
+    } catch (e) {
+        return false
+    }
 }
 
 const makeAuth = async (body) => {
-    const code = body.code
-    const redirect = body.redirect
+    try {
+        const code = body.code
+        const redirect = body.redirect
 
-    const generateAccessTokenUrl = getTokenUrl(code, redirect)
-    const accessTokenResponse = await axios.post(generateAccessTokenUrl)
+        const generateAccessTokenUrl = getTokenUrl(code, redirect)
+        const accessTokenResponse = await axios.post(generateAccessTokenUrl)
 
-    const twitchUserInfoUrl = 'https://api.twitch.tv/helix/users'
-    const twitchUserInfoHeaders = { 
-        'Client-ID': process.env.CLIENT_ID,
-        'Authorization': `Bearer ${accessTokenResponse.data.access_token}` 
+        const twitchUserInfoUrl = 'https://api.twitch.tv/helix/users'
+        const twitchUserInfoHeaders = { 
+            'Client-ID': process.env.CLIENT_ID,
+            'Authorization': `Bearer ${accessTokenResponse.data.access_token}` 
+        }
+        const twitchUserInfoResponse = await axios.get(twitchUserInfoUrl, { headers: twitchUserInfoHeaders })
+
+        const user = formatUserRequest(twitchUserInfoResponse, accessTokenResponse)
+
+        const findUser = await findUsers({ code: user.code })
+
+        let userData = {}
+        
+        if (findUser[0]) {
+            userData = await updateUser(findUser[0]._id, user)
+        } else {
+            userData = await createUser(user)
+            io.emit('newChannel');
+        }
+        
+        return formatUserResponse(userData)
+    } catch (e) {
+        return false
     }
-    const twitchUserInfoResponse = await axios.get(twitchUserInfoUrl, { headers: twitchUserInfoHeaders })
-
-    const user = formatUserRequest(twitchUserInfoResponse, accessTokenResponse)
-
-    const findUser = await findUsers({ code: user.code })
-
-    let userData = {}
-    
-    if (findUser[0]) {
-        userData = await updateUser(findUser[0]._id, user)
-    } else {
-        userData = await createUser(user)
-        io.emit('newChannel');
-    }
-    
-    return formatUserResponse(userData)
 }
 
 const getTokenUrl = (code, redirect) => {

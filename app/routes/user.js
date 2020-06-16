@@ -16,6 +16,10 @@ router.use(async (req, res, next) => {
 router.route('/')
 	.get(async (req, res) => {
 		const data = await findUsers(req.query)
+		if (!data) {
+			res.sendStatus(500)
+			return false
+		}
 		res.json(data);
 	})
 

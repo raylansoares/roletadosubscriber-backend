@@ -13,32 +13,54 @@ const find = async (queryParams) => {
 
     if (access_token) query.access_token = access_token
 
-    const users = await User.find(query).sort('-created_at');
-    return users
+    try {
+        const users = await User.find(query).sort('-created_at');
+        return users
+    } catch (e) {
+        return false
+    }
 }
 
 const create = async (body) => {
     body.created_at =  dayjs()
     body.updated_at =  dayjs()
-    const user = await User.create(body);
-    return user
+
+    try {
+        const user = await User.create(body);
+        return user
+    } catch (e) {
+        return false
+    }
 }
 
 const updateOne = async (_id, body) => {
     body.updated_at =  dayjs()
-    await User.findOneAndUpdate({ _id: _id}, body);
-    const user = await findOne(_id) 
-    return user
+
+    try {
+        await User.findOneAndUpdate({ _id: _id}, body);
+        const user = await findOne(_id) 
+        return user
+    } catch (e) {
+        return false
+    }
 }
 
 const findOne = async (_id) => {
-    const user = await User.findById(_id);
-    return user
+    try {
+        const user = await User.findById(_id);
+        return user
+    } catch (e) {
+        return false
+    }
 }
 
 const deleteOne = async (_id) => {
-    const user = await User.findByIdAndDelete(_id);
-    return user
+    try {
+        const user = await User.findByIdAndDelete(_id);
+        return user
+    } catch (e) {
+        return false
+    }
 }
 
 export {

@@ -36,26 +36,31 @@ config.io.on('connection', function (socket) {
 
     // Event from rose-chatbot
     socket.on('requestPrize', async function (data) {
-        const subscriber = await createSubscriber({ username: data.username, code: data.code })
-        // Event to rose-panel
-        socket.emit('selectPrize', { code: data.code, subscriber: subscriber });
-        socket.broadcast.emit('selectPrize', { code: data.code, subscriber: subscriber });
+        try {
+            const subscriber = await createSubscriber({ username: data.username, code: data.code })
+            // Event to rose-panel
+            socket.emit('selectPrize', { code: data.code, subscriber: subscriber });
+            socket.broadcast.emit('selectPrize', { code: data.code, subscriber: subscriber });
+        } catch (e) {}
     });
 
     // Event from rose-panel
     socket.on('retryWheel', async function (data) {
-        // Event to rose-panel
-        socket.emit('selectPrize', { code: data.code, subscriber: data.subscriber });
-        socket.broadcast.emit('selectPrize', { code: data.code, subscriber: data.subscriber });
+        try {
+            // Event to rose-panel
+            socket.emit('selectPrize', { code: data.code, subscriber: data.subscriber });
+            socket.broadcast.emit('selectPrize', { code: data.code, subscriber: data.subscriber });
+        } catch (e) {}
     });
 
     // Event from rose-panel
     socket.on('sayPrize', async function (data) {
-        await updateSubscriber(data._id, { prizes: data.prizes })
-
-        // Event to rose-chatbot
-        socket.emit('confirmPrize', data);
-        socket.broadcast.emit('confirmPrize', data);
+        try {
+            await updateSubscriber(data._id, { prizes: data.prizes })
+            // Event to rose-chatbot
+            socket.emit('confirmPrize', data);
+            socket.broadcast.emit('confirmPrize', data);
+        } catch (e) {}
     });
 });
 

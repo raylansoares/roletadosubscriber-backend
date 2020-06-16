@@ -22,6 +22,10 @@ router.use(async (req, res, next) => {
 router.route('/')
 	.get(async (req, res) => {
 		const data = await findSubscribers({ code: req.headers['x-code'] })
+		if (!data) {
+			res.sendStatus(500)
+			return false
+		}
 		res.json(data);
 	})
 
@@ -29,24 +33,40 @@ router.route('/')
 	.post(async (req, res) => {
 		req.body.code = req.headers['x-code']
 		const data = await createSubscriber(req.body)
+		if (!data) {
+			res.sendStatus(500)
+			return false
+		}
 		res.json(data);
 	})
 
 router.route('/:id')
 	.get(async (req, res) => {
 		const data = await findOneSubscriber(req.params.id)
+		if (!data) {
+			res.sendStatus(500)
+			return false
+		}
 		res.json(data);
 	})
 
 router.route('/:id')
 	.patch(async (req, res) => {
 		const data = await updateSubscriber(req.params.id, req.body)
+		if (!data) {
+			res.sendStatus(500)
+			return false
+		}
 		res.json(data);
 	})
 
 router.route('/:id')
 	.delete(async (req, res) => {
 		const data = await deleteSubscriber(req.params.id)
+		if (!data) {
+			res.sendStatus(500)
+			return false
+		}
 		res.json(data);
 	})
 
