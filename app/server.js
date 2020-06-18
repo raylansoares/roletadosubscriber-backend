@@ -16,7 +16,8 @@ import {
 // connect to database
 mongoose.connect(`${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.DB_NAME}`, { 
     useNewUrlParser: true,
-    useUnifiedTopology: true 
+    useUnifiedTopology: true,
+    useFindAndModify: false
 });
 
 // parse body params
