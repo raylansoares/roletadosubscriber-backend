@@ -12,7 +12,7 @@ const find = async (queryParams) => {
     if (code) query.code = code
 
     try {
-        const prizes = await Prize.find(query).sort('-created_at');
+        const prizes = await Prize.find(query).sort('index');
         return prizes
     } catch (e) {
         return false
