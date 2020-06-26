@@ -1,18 +1,6 @@
 # rose-server
 > Rose server with NodeJS.
 
-##### NOTE : This project need node version >= 6
-
-This project uses
-
-* ES6 ( Using babel-register )
-* NodeJS ( version >= 6 )
-* Express
-* Mongoose
-* Body-parser
-* Socket.io
-* Dotenv
-
 ### Get Started
 Fire up your terminal
 ```sh
@@ -28,6 +16,14 @@ Open .env file and put you configs
 * MONGO_HOST - The mongodb host
 * MONGO_PORT - The mongodb port
 * DB_NAME - The database name
+* CLIENT_ID - The Twitch app client id
+* CLIENT_SECRET - The Twitch app client secret
+* MODE - The app mode dev/prod
+* DOMAIN - The app domain
+
+To run the app in prod mode, you need to configure ssl.
+By default, the server search the privkey.pem, cert.pem and chain.pem files on:
+`/etc/letsencrypt/live/${process.env.DOMAIN}/`
 
 Start server by typing
 ```sh
