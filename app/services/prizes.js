@@ -1,33 +1,64 @@
-import moment from 'moment'
 import Prize from '../models/prize'
+import dayjs from 'dayjs'
+import 'dayjs/locale/pt-br';
 
-const find = async () => {
-    const prizes = await Prize.find({}).sort('-created_at');
-    return prizes
+dayjs.locale("pt-br");
+
+const find = async (queryParams) => {
+    const { code = null } = queryParams
+
+    const query = {}
+    
+    if (code) query.code = code
+
+    try {
+        const prizes = await Prize.find(query).sort('-created_at');
+        return prizes
+    } catch (e) {
+        return false
+    }
 }
 
 const create = async (body) => {
-    body.created_at =  moment()
-    body.updated_at =  moment()
-    const prize = await Prize.create(body);
-    return prize
+    body.created_at =  dayjs()
+    body.updated_at =  dayjs()
+
+    try {
+        const prize = await Prize.create(body);
+        return prize
+    } catch (e) {
+        return false
+    }
 }
 
 const updateOne = async (_id, body) => {
-    body.updated_at =  moment()
-    await Prize.findOneAndUpdate({ _id: _id}, body);
-    const prize = await findOne(_id) 
-    return prize
+    body.updated_at =  dayjs()
+
+    try {
+        await Prize.findOneAndUpdate({ _id: _id}, body);
+        const prize = await findOne(_id) 
+        return prize
+    } catch (e) {
+        return false
+    }
 }
 
 const findOne = async (_id) => {
-    const prize = await Prize.findById(_id);
-    return prize
+    try {
+        const prize = await Prize.findById(_id);
+        return prize
+    } catch (e) {
+        return false
+    }
 }
 
 const deleteOne = async (_id) => {
-    const prize = await Prize.findByIdAndDelete(_id);
-    return prize
+    try {
+        const prize = await Prize.findByIdAndDelete(_id);
+        return prize
+    } catch (e) {
+        return false
+    }
 }
 
 export {

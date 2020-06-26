@@ -1,19 +1,21 @@
-import Subscriber from '../models/subscriber'
+import User from '../models/user'
 import dayjs from 'dayjs'
 import 'dayjs/locale/pt-br';
 
 dayjs.locale("pt-br");
 
 const find = async (queryParams) => {
-    const { code = null } = queryParams
+    const { code = null, access_token = null } = queryParams
 
     const query = {}
     
     if (code) query.code = code
 
+    if (access_token) query.access_token = access_token
+
     try {
-        const subscribers = await Subscriber.find(query).sort('-created_at');
-        return subscribers
+        const users = await User.find(query).sort('-created_at');
+        return users
     } catch (e) {
         return false
     }
@@ -24,8 +26,8 @@ const create = async (body) => {
     body.updated_at =  dayjs()
 
     try {
-        const subscriber = await Subscriber.create(body);
-        return subscriber
+        const user = await User.create(body);
+        return user
     } catch (e) {
         return false
     }
@@ -35,8 +37,9 @@ const updateOne = async (_id, body) => {
     body.updated_at =  dayjs()
 
     try {
-        const subscriber = await Subscriber.findOneAndUpdate({ _id: _id}, body);
-        return subscriber
+        await User.findOneAndUpdate({ _id: _id}, body);
+        const user = await findOne(_id) 
+        return user
     } catch (e) {
         return false
     }
@@ -44,8 +47,8 @@ const updateOne = async (_id, body) => {
 
 const findOne = async (_id) => {
     try {
-        const subscriber = await Subscriber.findById(_id);
-        return subscriber
+        const user = await User.findById(_id);
+        return user
     } catch (e) {
         return false
     }
@@ -53,8 +56,8 @@ const findOne = async (_id) => {
 
 const deleteOne = async (_id) => {
     try {
-        const subscriber = await Subscriber.findByIdAndDelete(_id);
-        return subscriber
+        const user = await User.findByIdAndDelete(_id);
+        return user
     } catch (e) {
         return false
     }

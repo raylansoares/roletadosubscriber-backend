@@ -1,8 +1,11 @@
 import mongoose from 'mongoose';
 
 const PrizeSchema = new mongoose.Schema({
+	code: String,
 	name: String,
-	description: String,
+	message: String,
+	command: String,
+	delay: Number,
 	color: String,
 	enabled: Boolean,
 	created_at: Date,

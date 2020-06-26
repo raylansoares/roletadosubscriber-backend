@@ -1,65 +1,69 @@
 require('dotenv').config()
 
-import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors'
 import mongoose from 'mongoose';
-import http from 'http';
-import SocketIO from 'socket.io';
 
 import routes from './routes';
+
+import * as config from './config'
 
 import { 
     create as createSubscriber,
     updateOne as updateSubscriber
 } from './services/subscribers'
 
-const app = express(); 
-const server = http.Server(app);
-const io = new SocketIO(server);
-
 // connect to database
 mongoose.connect(`${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.DB_NAME}`, { 
     useNewUrlParser: true,
-    useUnifiedTopology: true 
+    useUnifiedTopology: true,
+    useFindAndModify: false
 });
 
 // parse body params
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+config.app.use(bodyParser.json());
+config.app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(cors({
-    origin: '*'
+let allowedOrigin = process.env.APP_HOST
+if (process.env.APP_PORT) allowedOrigin += `:${process.env.APP_PORT}`
+
+config.app.use(cors({
+    origin : allowedOrigin
 }));
 
-app.use('/api', routes);
+config.app.use('/api', routes);
 
-io.on('connection', function (socket) {
+config.io.on('connection', function (socket) {
 
     // Event from rose-chatbot
-    socket.on('requestPrize', async function (username) {
-        const subscriber = await createSubscriber({ username: username })
-        // Event to rose-panel
-        socket.emit('selectPrize', subscriber);
-        socket.broadcast.emit('selectPrize', subscriber);
+    socket.on('requestPrize', async function (data) {
+        try {
+            const subscriber = await createSubscriber({ username: data.username, code: data.code })
+            // Event to rose-panel
+            socket.emit('selectPrize', { code: data.code, subscriber: subscriber });
+            socket.broadcast.emit('selectPrize', { code: data.code, subscriber: subscriber });
+        } catch (e) {}
     });
 
-    // Event from rose-chatbot
-    socket.on('retryWheel', async function (subscriber) {
-        // Event to rose-panel
-        socket.emit('selectPrize', subscriber);
-        socket.broadcast.emit('selectPrize', subscriber);
+    // Event from rose-panel
+    socket.on('retryWheel', async function (data) {
+        try {
+            // Event to rose-panel
+            socket.emit('selectPrize', { code: data.code, subscriber: data.subscriber });
+            socket.broadcast.emit('selectPrize', { code: data.code, subscriber: data.subscriber });
+        } catch (e) {}
     });
 
     // Event from rose-panel
     socket.on('sayPrize', async function (data) {
-        await updateSubscriber(data._id, { prizes: data.prizes })
-
-        // Event to rose-chatbot
-        socket.emit('confirmPrize', data);
-        socket.broadcast.emit('confirmPrize', data);
+        try {
+            await updateSubscriber(data._id, { prizes: data.prizes })
+            // Event to rose-chatbot
+            socket.emit('confirmPrize', data);
+            socket.broadcast.emit('confirmPrize', data);
+        } catch (e) {}
     });
 });
 
 // start app on PORT
-server.listen(process.env.SERVER_PORT, () => console.log(`Started server on ${process.env.SERVER_PORT}`));
+config.server.listen(process.env.SERVER_PORT, () => console.log(`Started server on ${process.env.SERVER_PORT}`));
