@@ -47,7 +47,14 @@ const refreshToken = async (code, token) => {
         const userData = await updateUser(findUser[0]._id, { 
             access_token: refreshTokenResponse.data.access_token,
             refresh_token: refreshTokenResponse.data.refresh_token
-        })
+        });
+
+        const channelId = Buffer.from(userData.code, 'base64').toString('ascii')
+
+        io.emit('pubSub', {
+            channel: channelId,
+            token: userData.access_token
+        });
 
         return formatUserResponse(userData)
     } catch (e) {
