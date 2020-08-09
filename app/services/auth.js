@@ -46,7 +46,10 @@ const refreshToken = async (code, token) => {
 
         const userData = await updateUser(findUser[0]._id, { 
             access_token: refreshTokenResponse.data.access_token,
-            refresh_token: refreshTokenResponse.data.refresh_token
+            refresh_token: refreshTokenResponse.data.refresh_token,
+            expires: dayjs()
+                .subtract(3, 'hour')
+                .add(refreshTokenResponse.data.expires_in, 'second'),
         });
 
         const channelId = Buffer.from(userData.code, 'base64').toString('ascii')
