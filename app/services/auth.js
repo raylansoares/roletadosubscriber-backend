@@ -14,14 +14,16 @@ const checkAuth = async (headers) => {
     try {
         if (!headers['x-auth-token'] || !headers['x-code']) return false
     
-        const findUser = await findUsers({ access_token: headers['x-auth-token'], code: headers['x-code'] })
+        const findUser = await findUsers({
+            access_token: headers['x-auth-token'],
+            code: headers['x-code']
+        })
         if (!findUser[0]) return false
         
-        const validToken = dayjs().isBefore(dayjs(findUser[0].expires));
+        const validToken = dayjs()
+            .subtract(3, 'hour')
+            .isBefore(dayjs(findUser[0].expires));
         if (!validToken) return false
-    
-        const needRefresh = dayjs().add(1, 'hour').isAfter(dayjs(findUser[0].expires));
-        if (needRefresh) await refreshToken(headers['x-auth-token'])
     } catch (e) {
         return false
     }
@@ -29,9 +31,14 @@ const checkAuth = async (headers) => {
     return true
 }
 
-const refreshToken = async (token) => {
+const refreshToken = async (code, token) => {
     try {
-        const findUser = await findUsers({ access_token: token })
+        const findUser = await findUsers({
+            code: code,
+            access_token: token
+        })
+        if (!findUser[0]) return false
+
         const refresh_token = findUser[0].refresh_token
 
         const refreshAccessTokenUrl = getRefreshTokenUrl(refresh_token)
@@ -39,12 +46,20 @@ const refreshToken = async (token) => {
 
         const userData = await updateUser(findUser[0]._id, { 
             access_token: refreshTokenResponse.data.access_token,
-            refresh_token: refreshTokenResponse.data.refresh_token
-        })
+            refresh_token: refreshTokenResponse.data.refresh_token,
+            expires: dayjs()
+                .subtract(3, 'hour')
+                .add(refreshTokenResponse.data.expires_in, 'second'),
+        });
 
-        io.emit('updateToken', formatUserResponse(userData));
+        const channelId = Buffer.from(userData.code, 'base64').toString('ascii')
 
-        return true
+        io.emit('pubSub', {
+            channel: channelId,
+            token: userData.access_token
+        });
+
+        return formatUserResponse(userData)
     } catch (e) {
         return false
     }
@@ -63,9 +78,14 @@ const makeAuth = async (body) => {
             'Client-ID': process.env.CLIENT_ID,
             'Authorization': `Bearer ${accessTokenResponse.data.access_token}` 
         }
-        const twitchUserInfoResponse = await axios.get(twitchUserInfoUrl, { headers: twitchUserInfoHeaders })
+        const twitchUserInfoResponse = await axios.get(twitchUserInfoUrl, { 
+            headers: twitchUserInfoHeaders 
+        })
 
-        const user = formatUserRequest(twitchUserInfoResponse, accessTokenResponse)
+        const user = formatUserRequest(
+            twitchUserInfoResponse,
+            accessTokenResponse
+        )
 
         const findUser = await findUsers({ code: user.code })
 
@@ -77,6 +97,11 @@ const makeAuth = async (body) => {
             userData = await createUser(user)
             io.emit('newChannel');
         }
+
+        io.emit('pubSub', {
+            channel: twitchUserInfoResponse.data.data[0].id,
+            token: accessTokenResponse.data.access_token
+        });
         
         return formatUserResponse(userData)
     } catch (e) {
@@ -111,7 +136,9 @@ const formatUserRequest = (twitchUserInfoResponse, accessTokenResponse) => {
         display_name: twitchUserInfoResponse.data.data[0].display_name,
         profile_image_url: twitchUserInfoResponse.data.data[0].profile_image_url,
         access_token: accessTokenResponse.data.access_token,
-        expires: dayjs().add(accessTokenResponse.data.expires_in, 'second'),
+        expires: dayjs()
+            .subtract(3, 'hour')
+            .add(accessTokenResponse.data.expires_in, 'second'),
         refresh_token: accessTokenResponse.data.refresh_token,
     }
 }
@@ -129,5 +156,6 @@ const formatUserResponse = (data) => {
 
 export {
     makeAuth,
-    checkAuth
+    checkAuth,
+    refreshToken
 }
