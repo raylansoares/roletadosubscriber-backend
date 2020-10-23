@@ -8,6 +8,7 @@ const PrizeSchema = new mongoose.Schema({
 	command: String,
 	delay: Number,
 	color: String,
+	text_color: String,
 	enabled: Boolean,
 	created_at: Date,
 	updated_at: Date
