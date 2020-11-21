@@ -1,7 +1,7 @@
 {
-  "name": "rose-server",
+  "name": "roletadosubscriber-backend",
   "version": "1.0.0",
-  "description": "Rose server with NodeJS",
+  "description": "Roleta do Subscriber Backend",
   "main": "index.js",
   "scripts": {
     "dev": "node-dev index.js",
@@ -9,11 +9,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/raylansoares/rose-server.git"
+    "url": "git+https://github.com/raylansoares/roletadosubscriber-backend.git"
   },
   "author": "Raylan Campos",
   "license": "MIT",
-  "homepage": "https://github.com/raylansoares/rose-server#readme",
+  "homepage": "https://github.com/raylansoares/roletadosubscriber-backend#readme",
   "devDependencies": {
     "babel-preset-es2015": "^6.22.0",
     "babel-register": "^6.23.0"

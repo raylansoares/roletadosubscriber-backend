@@ -11,9 +11,10 @@ Você pode acessar a aplicação em:
 
 ## 📦 Projetos Relacionados
 
-A aplicação é dividida em 3 projetos:
+A aplicação é dividida em 4 projetos:
 * [roletadosubscriber-backend](https://github.com/raylansoares/roletadosubscriber-backend)
 * [roletadosubscriber-chatbot](https://github.com/raylansoares/roletadosubscriber-chatbot)
+* [roletadosubscriber-pubsub](https://github.com/raylansoares/roletadosubscriber-pubsub)
 * [roletadosubscriber-frontend](https://github.com/raylansoares/roletadosubscriber-frontend)
 
 
@@ -30,6 +31,7 @@ A aplicação é dividida em 3 projetos:
 
 $ git clone https://github.com/raylansoares/roletadosubscriber-backend
 $ git clone https://github.com/raylansoares/roletadosubscriber-chatbot
+$ git clone https://github.com/raylansoares/roletadosubscriber-pubsub
 $ git clone https://github.com/raylansoares/roletadosubscriber-frontend
 
 ```
@@ -71,6 +73,36 @@ $ npm run dev
 # Vá para a pasta do chatbot
 
 $ cd roletadosubscriber-chatbot
+
+
+# Instale as dependências
+
+$ npm install
+
+
+# Copie o arquivo de exemplo de variáveis de ambiente
+
+$ cp .env.example .env
+
+
+# Em seguida abra o arquivo de variáveis de ambiente e insira suas informações
+
+$ vim .env
+
+
+# Inicie a aplicação
+
+$ npm run dev
+
+```
+
+###  Inicie o PubSub
+
+```bash
+
+# Vá para a pasta do pubsub
+
+$ cd roletadosubscriber-pubsub
 
 
 # Instale as dependências
