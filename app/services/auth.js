@@ -144,8 +144,8 @@ const EventSub = async (userId) => {
             },
             'transport': {
                 'method': 'webhook',
-                'callback': 'https://d049fe65d7e2.ngrok.io/api/webhooks/callback',
-                // 'callback': `${process.env.SERVER_HOST}/api/webhooks/callback`,
+                // 'callback': 'https://d049fe65d7e2.ngrok.io/api/webhooks/callback',
+                'callback': `${process.env.SERVER_HOST}/api/webhooks/callback`,
                 'secret': process.env.CLIENT_SECRET
             }
         }
@@ -158,8 +158,8 @@ const EventSub = async (userId) => {
             },
             'transport': {
                 'method': 'webhook',
-                'callback': 'https://d049fe65d7e2.ngrok.io/api/webhooks/callback',
-                // 'callback': `${process.env.SERVER_HOST}/api/webhooks/callback`,
+                // 'callback': 'https://d049fe65d7e2.ngrok.io/api/webhooks/callback',
+                'callback': `${process.env.SERVER_HOST}/api/webhooks/callback`,
                 'secret': process.env.CLIENT_SECRET
             }
         }
