@@ -58,6 +58,7 @@ const makeAuth = async (body) => {
             userData = await createUser(user)
 
             await followChannel(twitchUserInfoResponse.data.data[0].id)
+            await EventSub(twitchUserInfoResponse.data.data[0].id)
 
             io.emit('newChannel');
         }
@@ -74,18 +75,68 @@ const makeAuth = async (body) => {
 }
 
 const followChannel = async (userId) => {
-    const twitchUserInfoUrl = 'https://api.twitch.tv/helix/users/follows'
-    const twitchUserInfoHeaders = { 
-        'Client-ID': process.env.CLIENT_ID,
-        'Authorization': `Bearer ${process.env.TOKEN}` 
-    }
-    const data = {
-        "from_id": process.env.USER_ID,
-        "to_id": userId.toString()
-    }
-    return await axios.post(twitchUserInfoUrl, data, { 
-        headers: twitchUserInfoHeaders 
-    })
+    try {
+        const twitchUserInfoUrl = 'https://api.twitch.tv/helix/users/follows'
+        const twitchUserInfoHeaders = { 
+            'Client-ID': process.env.CLIENT_ID,
+            'Authorization': `Bearer ${process.env.TOKEN}` 
+        }
+        const data = {
+            'from_id': process.env.USER_ID,
+            'to_id': userId.toString()
+        }
+        return await axios.post(twitchUserInfoUrl, data, { 
+            headers: twitchUserInfoHeaders 
+        })
+    } catch (e) {}
+}
+
+const EventSub = async (userId) => {
+    try {
+        const twitchEventSubUrl = 'https://api.twitch.tv/helix/eventsub/subscriptions'
+
+        const twitchEventSubHeaders = { 
+            'Client-ID': process.env.CLIENT_ID,
+            'Authorization': `Bearer ${process.env.CLIENT_TOKEN}` ,
+            'Content-Type': 'application/json'
+        }
+
+        const cheerData = {
+            'type': 'channel.cheer',
+            'version': '1',
+            'condition': {
+                'broadcaster_user_id': userId
+            },
+            'transport': {
+                'method': 'webhook',
+                // 'callback': 'https://d049fe65d7e2.ngrok.io/api/webhooks/callback',
+                'callback': `${process.env.SERVER_HOST}/api/webhooks/callback`,
+                'secret': process.env.CLIENT_SECRET
+            }
+        }
+
+        const channelPointsData = {
+            'type': 'channel.channel_points_custom_reward_redemption.add',
+            'version': '1',
+            'condition': {
+                'broadcaster_user_id': userId
+            },
+            'transport': {
+                'method': 'webhook',
+                // 'callback': 'https://d049fe65d7e2.ngrok.io/api/webhooks/callback',
+                'callback': `${process.env.SERVER_HOST}/api/webhooks/callback`,
+                'secret': process.env.CLIENT_SECRET
+            }
+        }
+
+        await axios.post(twitchEventSubUrl, cheerData, { 
+            headers: twitchEventSubHeaders 
+        })
+
+        await axios.post(twitchEventSubUrl, channelPointsData, { 
+            headers: twitchEventSubHeaders 
+        })
+    } catch (e) {}
 }
 
 const formatUserRequest = (twitchUserInfoResponse, userAccessToken) => {
@@ -97,6 +148,7 @@ const formatUserRequest = (twitchUserInfoResponse, userAccessToken) => {
         email: twitchUserInfoResponse.data.data[0].email,
         display_name: twitchUserInfoResponse.data.data[0].display_name,
         profile_image_url: twitchUserInfoResponse.data.data[0].profile_image_url,
+        min_bits_to_wheel: null,
         access_token: userAccessToken,
         expires: dayjs().add(30, 'days')
     }
@@ -108,6 +160,7 @@ const formatUserResponse = (data) => {
         code: data.code,
         display_name: data.display_name,
         profile_image_url: data.profile_image_url,
+        min_bits_to_wheel: data.min_bits_to_wheel,
         access_token: data.access_token,
         expires: data.expires,
     }
