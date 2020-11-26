@@ -200,7 +200,6 @@ const formatUserRequest = (twitchUserInfoResponse, accessTokenResponse) => {
         email: twitchUserInfoResponse.data.data[0].email,
         display_name: twitchUserInfoResponse.data.data[0].display_name,
         profile_image_url: twitchUserInfoResponse.data.data[0].profile_image_url,
-        min_bits_to_wheel: null,
         access_token: accessTokenResponse.data.access_token,
         refresh_token: accessTokenResponse.data.refresh_token,
         expires: dayjs()

@@ -39,7 +39,7 @@ const availableEvents = {
         const code = Buffer.from(broadcaster, 'utf8')
         const broadcasterCode = code.toString('base64')
 
-        const findUser = await findUsers({ code: user.code })
+        const findUser = await findUsers({ code: broadcasterCode })
 
         if (!findUser[0] || !findUser[0].min_bits_to_wheel) return true
 
