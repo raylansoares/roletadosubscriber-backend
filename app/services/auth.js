@@ -19,8 +19,10 @@ const checkAuth = async (headers) => {
             code: headers['x-code']
         })
         if (!findUser[0]) return false
-        
-        const validToken = dayjs().isBefore(dayjs(findUser[0].expires));
+
+        const validToken = dayjs()
+            .subtract(3, 'hour')
+            .isBefore(dayjs(findUser[0].expires));
 
         if (!validToken) return false
     } catch (e) {
@@ -30,14 +32,45 @@ const checkAuth = async (headers) => {
     return true
 }
 
+const refreshToken = async (code, token) => {	
+    try {
+        const findUser = await findUsers({
+            code: code,
+            access_token: token
+        })
+        if (!findUser[0]) return false
+
+        const refresh_token = findUser[0].refresh_token
+
+        const refreshAccessTokenUrl = getRefreshTokenUrl(refresh_token)
+        const refreshTokenResponse = await axios.post(refreshAccessTokenUrl)
+
+        const userData = await updateUser(findUser[0]._id, {
+            access_token: refreshTokenResponse.data.access_token,
+            refresh_token: refreshTokenResponse.data.refresh_token,
+            expires: dayjs()
+                .subtract(3, 'hour')
+                .add(refreshTokenResponse.data.expires_in, 'second'),
+        });
+
+        return formatUserResponse(userData)
+    } catch (e) {
+        return false
+    }
+}
+
 const makeAuth = async (body) => {
     try {
-        const userAccessToken = body.token
+        const code = body.code
+        const redirect = body.redirect
+
+        const generateAccessTokenUrl = getTokenUrl(code, redirect)
+        const accessTokenResponse = await axios.post(generateAccessTokenUrl)
 
         const twitchUserInfoUrl = 'https://api.twitch.tv/helix/users'
         const twitchUserInfoHeaders = { 
             'Client-ID': process.env.CLIENT_ID,
-            'Authorization': `Bearer ${userAccessToken}` 
+            'Authorization': `Bearer ${accessTokenResponse.data.access_token}`
         }
         const twitchUserInfoResponse = await axios.get(twitchUserInfoUrl, { 
             headers: twitchUserInfoHeaders 
@@ -45,7 +78,7 @@ const makeAuth = async (body) => {
 
         const user = formatUserRequest(
             twitchUserInfoResponse,
-            userAccessToken
+            accessTokenResponse
         )
 
         const findUser = await findUsers({ code: user.code })
@@ -58,14 +91,10 @@ const makeAuth = async (body) => {
             userData = await createUser(user)
 
             await followChannel(twitchUserInfoResponse.data.data[0].id)
+            await EventSub(twitchUserInfoResponse.data.data[0].id)
 
             io.emit('newChannel');
         }
-
-        io.emit('pubSub', {
-            channel: twitchUserInfoResponse.data.data[0].id,
-            token: userAccessToken
-        });
         
         return formatUserResponse(userData)
     } catch (e) {
@@ -74,31 +103,100 @@ const makeAuth = async (body) => {
 }
 
 const followChannel = async (userId) => {
-    const twitchUserInfoUrl = 'https://api.twitch.tv/helix/users/follows'
-    const twitchUserInfoHeaders = { 
-        'Client-ID': process.env.CLIENT_ID,
-        'Authorization': `Bearer ${process.env.TOKEN}` 
-    }
-    const data = {
-        "from_id": process.env.USER_ID,
-        "to_id": userId.toString()
-    }
-    return await axios.post(twitchUserInfoUrl, data, { 
-        headers: twitchUserInfoHeaders 
-    })
+    try {
+        const twitchUserInfoUrl = 'https://api.twitch.tv/helix/users/follows'
+        const twitchUserInfoHeaders = { 
+            'Client-ID': process.env.CLIENT_ID,
+            'Authorization': `Bearer ${process.env.TOKEN}` 
+        }
+        const data = {
+            'from_id': process.env.USER_ID,
+            'to_id': userId.toString()
+        }
+        return await axios.post(twitchUserInfoUrl, data, { 
+            headers: twitchUserInfoHeaders 
+        })
+    } catch (e) {}
 }
 
-const formatUserRequest = (twitchUserInfoResponse, userAccessToken) => {
+const EventSub = async (userId) => {
+    try {
+        const twitchEventSubUrl = 'https://api.twitch.tv/helix/eventsub/subscriptions'
+
+        const twitchEventSubHeaders = { 
+            'Client-ID': process.env.CLIENT_ID,
+            'Authorization': `Bearer ${process.env.CLIENT_TOKEN}` ,
+            'Content-Type': 'application/json'
+        }
+
+        const cheerData = {
+            'type': 'channel.cheer',
+            'version': '1',
+            'condition': {
+                'broadcaster_user_id': userId
+            },
+            'transport': {
+                'method': 'webhook',
+                'callback': `${process.env.SERVER_HOST}/api/webhooks/callback`,
+                'secret': process.env.CLIENT_SECRET
+            }
+        }
+
+        const channelPointsData = {
+            'type': 'channel.channel_points_custom_reward_redemption.add',
+            'version': '1',
+            'condition': {
+                'broadcaster_user_id': userId
+            },
+            'transport': {
+                'method': 'webhook',
+                'callback': `${process.env.SERVER_HOST}/api/webhooks/callback`,
+                'secret': process.env.CLIENT_SECRET
+            }
+        }
+
+        await axios.post(twitchEventSubUrl, cheerData, { 
+            headers: twitchEventSubHeaders 
+        })
+
+        await axios.post(twitchEventSubUrl, channelPointsData, { 
+            headers: twitchEventSubHeaders 
+        })
+    } catch (e) {}
+}
+
+const getTokenUrl = (code, redirect) => {
+    return 'https://id.twitch.tv/oauth2/token' +
+        `?client_id=${process.env.CLIENT_ID}` +
+        `&client_secret=${process.env.CLIENT_SECRET}` +
+        `&code=${code}` +
+        '&grant_type=authorization_code' +
+        `&redirect_uri=${redirect}`
+}
+
+const getRefreshTokenUrl = (refreshToken) => {
+    return 'https://id.twitch.tv/oauth2/token' +
+        `?client_id=${process.env.CLIENT_ID}` +
+        `&client_secret=${process.env.CLIENT_SECRET}` +
+        '&grant_type=refresh_token' +
+        `&refresh_token=${refreshToken}`
+}
+
+const formatUserRequest = (twitchUserInfoResponse, accessTokenResponse) => {
     const code = Buffer.from(twitchUserInfoResponse.data.data[0].id, 'utf8');
     const userCode = code.toString('base64')
     return {
         code: userCode,
+        broadcaster_id: twitchUserInfoResponse.data.data[0].id,
         login: twitchUserInfoResponse.data.data[0].login,
         email: twitchUserInfoResponse.data.data[0].email,
         display_name: twitchUserInfoResponse.data.data[0].display_name,
         profile_image_url: twitchUserInfoResponse.data.data[0].profile_image_url,
-        access_token: userAccessToken,
-        expires: dayjs().add(30, 'days')
+        access_token: accessTokenResponse.data.access_token,
+        refresh_token: accessTokenResponse.data.refresh_token,
+        expires: dayjs()
+            .subtract(3, 'hour')
+            .add(accessTokenResponse.data.expires_in, 'second'),
     }
 }
 
@@ -106,8 +204,10 @@ const formatUserResponse = (data) => {
     return {
         login: data.login,
         code: data.code,
+        broadcaster_id: data.broadcaster_id,
         display_name: data.display_name,
         profile_image_url: data.profile_image_url,
+        min_bits_to_wheel: data.min_bits_to_wheel,
         access_token: data.access_token,
         expires: data.expires,
     }
@@ -115,5 +215,6 @@ const formatUserResponse = (data) => {
 
 export {
     makeAuth,
-    checkAuth
+    checkAuth,
+    refreshToken
 }
