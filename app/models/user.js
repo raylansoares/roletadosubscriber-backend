@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const UserSchema = new mongoose.Schema({
 	code: String,
+	broadcaster_id: String,
 	login: String,
 	display_name: String,
 	email: String,

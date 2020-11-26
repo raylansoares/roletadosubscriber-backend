@@ -144,7 +144,6 @@ const EventSub = async (userId) => {
             },
             'transport': {
                 'method': 'webhook',
-                // 'callback': 'https://d049fe65d7e2.ngrok.io/api/webhooks/callback',
                 'callback': `${process.env.SERVER_HOST}/api/webhooks/callback`,
                 'secret': process.env.CLIENT_SECRET
             }
@@ -158,7 +157,6 @@ const EventSub = async (userId) => {
             },
             'transport': {
                 'method': 'webhook',
-                // 'callback': 'https://d049fe65d7e2.ngrok.io/api/webhooks/callback',
                 'callback': `${process.env.SERVER_HOST}/api/webhooks/callback`,
                 'secret': process.env.CLIENT_SECRET
             }
@@ -196,6 +194,7 @@ const formatUserRequest = (twitchUserInfoResponse, accessTokenResponse) => {
     const userCode = code.toString('base64')
     return {
         code: userCode,
+        broadcaster_id: twitchUserInfoResponse.data.data[0].id,
         login: twitchUserInfoResponse.data.data[0].login,
         email: twitchUserInfoResponse.data.data[0].email,
         display_name: twitchUserInfoResponse.data.data[0].display_name,
@@ -212,6 +211,7 @@ const formatUserResponse = (data) => {
     return {
         login: data.login,
         code: data.code,
+        broadcaster_id: data.broadcaster_id,
         display_name: data.display_name,
         profile_image_url: data.profile_image_url,
         min_bits_to_wheel: data.min_bits_to_wheel,
