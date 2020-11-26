@@ -53,13 +53,6 @@ const refreshToken = async (code, token) => {
                 .add(refreshTokenResponse.data.expires_in, 'second'),
         });
 
-        const channelId = Buffer.from(userData.code, 'base64').toString('ascii')
-
-        io.emit('pubSub', {
-            channel: channelId,
-            token: userData.access_token
-        });
-
         return formatUserResponse(userData)
     } catch (e) {
         return false
