@@ -1,5 +1,5 @@
 import { create as createSubscriber } from './subscribers'
-import { find as findUsers } from './users'
+import { find as findConfigurations } from './configurations'
 import { io } from '../config'
 
 const wheelRewardTitle = 'Ganhe uma roleta do subscriber'
@@ -39,11 +39,14 @@ const availableEvents = {
         const code = Buffer.from(broadcaster, 'utf8')
         const broadcasterCode = code.toString('base64')
 
-        const findUser = await findUsers({ code: broadcasterCode })
+        const findConfiguration = await findConfigurations({
+            code: broadcasterCode
+        })
 
-        if (!findUser[0] || !findUser[0].min_bits_to_wheel) return true
+        if (!findConfiguration[0] || !findConfiguration[0].min_bits_to_wheel)
+            return true
 
-        const minBits = findUser[0].min_bits_to_wheel
+        const minBits = findConfiguration[0].min_bits_to_wheel
 
         if (event.bits < minBits) return true
 

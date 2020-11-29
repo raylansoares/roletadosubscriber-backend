@@ -7,7 +7,6 @@ const UserSchema = new mongoose.Schema({
 	display_name: String,
 	email: String,
 	profile_image_url: String,
-	min_bits_to_wheel: Number,
 	access_token: String,
 	refresh_token: String,
 	expires: Date,
