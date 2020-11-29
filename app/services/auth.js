@@ -207,7 +207,6 @@ const formatUserResponse = (data) => {
         broadcaster_id: data.broadcaster_id,
         display_name: data.display_name,
         profile_image_url: data.profile_image_url,
-        min_bits_to_wheel: data.min_bits_to_wheel,
         access_token: data.access_token,
         expires: data.expires,
     }
