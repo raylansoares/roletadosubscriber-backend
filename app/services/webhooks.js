@@ -15,15 +15,16 @@ const availableEvents = {
     'channel.channel_points_custom_reward_redemption.add': async (event) => {
         if (event.reward.title !== wheelRewardTitle) return true
 
-        const userName = event.user_name
-
         const broadcaster = event.broadcaster_user_id
         const code = Buffer.from(broadcaster, 'utf8')
         const broadcasterCode = code.toString('base64')
 
         const subscriber = await createSubscriber({
-            username: userName,
-            code: broadcasterCode
+            username: event.user_name,
+            code: broadcasterCode,
+            origin: 'Points',
+            quantity: event.reward.cost,
+            message: event.user_input || null
         })
 
         io.emit('selectPrize', {
@@ -33,8 +34,6 @@ const availableEvents = {
     },
 
     'channel.cheer': async (event) => {
-        const userName = event.user_name
-        
         const broadcaster = event.broadcaster_user_id
         const code = Buffer.from(broadcaster, 'utf8')
         const broadcasterCode = code.toString('base64')
@@ -51,8 +50,11 @@ const availableEvents = {
         if (event.bits < minBits) return true
 
         const subscriber = await createSubscriber({
-            username: userName,
-            code: broadcasterCode
+            username: event.user_name,
+            code: broadcasterCode,
+            origin: 'Bits',
+            quantity: event.bits,
+            message: event.message || null
         })
 
         io.emit('selectPrize', {
