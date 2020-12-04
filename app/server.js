@@ -38,7 +38,7 @@ config.io.on('connection', function (socket) {
     // Event from rose-chatbot
     socket.on('requestPrize', async function (data) {
         try {
-            const subscriber = await createSubscriber({ username: data.username, code: data.code })
+            const subscriber = await createSubscriber({ username: data.username, code: data.code, origin: data.origin, quantity: data.quantity, message: data.message })
             // Event to rose-panel
             socket.emit('selectPrize', { code: data.code, subscriber: subscriber });
             socket.broadcast.emit('selectPrize', { code: data.code, subscriber: subscriber });
