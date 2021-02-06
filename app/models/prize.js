@@ -10,6 +10,7 @@ const PrizeSchema = new mongoose.Schema({
 	color: String,
 	text_color: String,
 	enabled: Boolean,
+	size: Number,
 	created_at: Date,
 	updated_at: Date
 });
