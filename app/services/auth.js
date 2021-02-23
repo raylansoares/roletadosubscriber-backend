@@ -12,6 +12,12 @@ dayjs.locale("pt-br");
 
 const checkAuth = async (headers) => {
     try {
+        // Admin access
+        if (headers['x-client-secret'] &&
+            headers['x-client-secret'] === process.env.CLIENT_SECRET) {
+            return true
+        }
+
         if (!headers['x-auth-token'] || !headers['x-code']) return false
     
         const findUser = await findUsers({
