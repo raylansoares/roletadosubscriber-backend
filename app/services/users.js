@@ -14,7 +14,7 @@ const find = async (queryParams) => {
     if (access_token) query.access_token = access_token
 
     try {
-        const users = await User.find(query).sort('-created_at');
+        const users = await User.find(query).sort('-updated_at');
         return users
     } catch (e) {
         return false
