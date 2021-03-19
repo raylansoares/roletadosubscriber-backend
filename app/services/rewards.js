@@ -5,11 +5,12 @@ import 'dayjs/locale/pt-br';
 dayjs.locale("pt-br");
 
 const find = async (queryParams) => {
-    const { code = null } = queryParams
+    const { code = null, name = null } = queryParams
 
     const query = {}
     
     if (code) query.code = code
+    if (name) query.name = name
 
     try {
         return await Reward.find(query);

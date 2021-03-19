@@ -5,6 +5,7 @@ const RewardSchema = new mongoose.Schema({
 	name: String,
 	type: String,
 	action: String,
+	time: Number,
 	created_at: Date,
 	updated_at: Date
 });
