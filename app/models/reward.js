@@ -10,4 +10,6 @@ const RewardSchema = new mongoose.Schema({
 	updated_at: Date
 });
 
+RewardSchema.index({ 'code': 1, 'name': 1 }, { unique: true });
+
 export default mongoose.model('Reward', RewardSchema);
