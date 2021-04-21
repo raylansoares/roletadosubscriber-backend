@@ -1,5 +1,6 @@
 import { create as createSubscriber } from './subscribers'
 import { find as findConfigurations } from './configurations'
+import { find as findReward } from './rewards'
 import { io } from '../config'
 
 const wheelRewardTitle = 'Ganhe uma roleta do subscriber'
@@ -13,24 +14,32 @@ const createWheelEvent = async (body) => {
 
 const availableEvents = {
     'channel.channel_points_custom_reward_redemption.add': async (event) => {
-        if (event.reward.title !== wheelRewardTitle) return true
-
         const broadcaster = event.broadcaster_user_id
         const code = Buffer.from(broadcaster, 'utf8')
         const broadcasterCode = code.toString('base64')
 
-        const subscriber = await createSubscriber({
-            username: event.user_name,
+        // Old wheel event
+        if (event.reward.title === wheelRewardTitle) {
+            await triggerWheel(broadcasterCode, event)
+            return true
+        }
+
+        const findRewards = await findReward({
             code: broadcasterCode,
-            origin: 'Points',
-            quantity: event.reward.cost,
-            message: event.user_input || null
+            name: event.reward.title
         })
 
-        io.emit('selectPrize', {
-            code: subscriber.code,
-            subscriber: subscriber
-        });
+        if (!findRewards[0]) return true
+
+        if (findRewards[0].type === 'wheel') {
+            await triggerWheel(broadcasterCode, event)
+            return true
+        }
+
+        if (findRewards[0].type === 'command') {
+            await triggerCommand(broadcasterCode, event, findRewards[0])
+            return true
+        }
     },
 
     'channel.cheer': async (event) => {
@@ -62,6 +71,31 @@ const availableEvents = {
             subscriber: subscriber
         });
     }
+}
+
+const triggerWheel = async (broadcasterCode, event) => {
+    const subscriber = await createSubscriber({
+        username: event.user_name,
+        code: broadcasterCode,
+        origin: 'Points',
+        quantity: event.reward.cost,
+        message: event.user_input || ''
+    })
+
+    io.emit('selectPrize', {
+        code: broadcasterCode,
+        subscriber: subscriber
+    });
+}
+
+const triggerCommand = async (broadcasterCode, event, reward) => {
+    io.emit('executeCommand', {
+        code: broadcasterCode,
+        action: reward.action,
+        time: reward.time,
+        username: event.user_name,
+        input: event.user_input || ''
+    });
 }
 
 export {
