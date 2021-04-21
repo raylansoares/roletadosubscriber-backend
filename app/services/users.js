@@ -5,13 +5,16 @@ import 'dayjs/locale/pt-br';
 dayjs.locale("pt-br");
 
 const find = async (queryParams) => {
-    const { code = null, access_token = null } = queryParams
+    const { code = null, access_token = null, active = null } = queryParams
 
     const query = {}
     
     if (code) query.code = code
 
     if (access_token) query.access_token = access_token
+
+    // Active channels = updated_at >= 30 days old
+    if (active) query.updated_at = { $gte: dayjs().subtract(30, 'day') }
 
     try {
         const users = await User.find(query).sort('-updated_at');
