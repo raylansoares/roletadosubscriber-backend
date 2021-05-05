@@ -98,12 +98,12 @@ const makeAuth = async (body) => {
 
             await followChannel(twitchUserInfoResponse.data.data[0].id)
             await EventSub(twitchUserInfoResponse.data.data[0].id)
-
-            io.emit('joinChannel', {
-                channel: userData.login,
-                code: userData.code
-            });
         }
+
+        io.emit('joinChannel', {
+            channel: userData.login,
+            code: userData.code
+        });
         
         return formatUserResponse(userData)
     } catch (e) {
