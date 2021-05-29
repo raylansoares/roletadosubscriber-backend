@@ -3,7 +3,7 @@ require('dotenv').config()
 import express from 'express';
 import http from 'http';
 import https from 'https';
-import SocketIO from 'socket.io';
+import { Server } from 'socket.io';
 import fs from 'fs'
 
 const app = express();
@@ -19,7 +19,16 @@ if (process.env.MODE === 'prod') {
     server = http.Server(app);
 }
 
-const io = new SocketIO(server);
+let allowedOrigin = process.env.APP_HOST
+if (process.env.APP_PORT) allowedOrigin += `:${process.env.APP_PORT}`
+
+const io = new Server(server, {
+    cors: {
+        origin: allowedOrigin,
+        credentials: true
+    },
+    allowEIO3: true
+});
 
 export {
     app,
