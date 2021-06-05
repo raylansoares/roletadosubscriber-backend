@@ -36,32 +36,29 @@ config.app.use('/api', routes);
 
 config.io.on('connection', function (socket) {
 
-    // Event from rose-chatbot
+    // Event from chatbot
     socket.on('requestPrize', async function (data) {
         try {
             const subscriber = await createSubscriber({ username: data.username, code: data.code, origin: data.origin, quantity: data.quantity, message: data.message })
-            // Event to rose-panel
-            socket.emit('selectPrize', { code: data.code, subscriber: subscriber });
-            socket.broadcast.emit('selectPrize', { code: data.code, subscriber: subscriber });
+            // Event to frontend
+            config.io.emit('selectPrize', { code: data.code, subscriber: subscriber });
         } catch (e) {}
     });
 
-    // Event from rose-panel
+    // Event from frontend
     socket.on('retryWheel', async function (data) {
         try {
-            // Event to rose-panel
-            socket.emit('selectPrize', { code: data.code, subscriber: data.subscriber });
-            socket.broadcast.emit('selectPrize', { code: data.code, subscriber: data.subscriber });
+            // Event to frontend
+            config.io.emit('selectPrize', { code: data.code, subscriber: data.subscriber });
         } catch (e) {}
     });
 
-    // Event from rose-panel
+    // Event from frontend
     socket.on('sayPrize', async function (data) {
         try {
             await updateSubscriber(data._id, { prizes: data.prizes })
-            // Event to rose-chatbot
-            socket.emit('confirmPrize', data);
-            socket.broadcast.emit('confirmPrize', data);
+            // Event to chatbot
+            config.io.emit('confirmPrize', data);
         } catch (e) {}
     });
 });
