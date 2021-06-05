@@ -1,75 +1,75 @@
-import User from '../models/user'
+import 'dayjs/locale/pt-br'
 import dayjs from 'dayjs'
-import 'dayjs/locale/pt-br';
+import User from '../models/user'
 
-dayjs.locale("pt-br");
+dayjs.locale('pt-br')
 
 const find = async (queryParams) => {
-    const { code = null, access_token = null, active = null } = queryParams
+  const { code = null, access_token = null, active = null } = queryParams
 
-    const query = {}
-    
-    if (code) query.code = code
+  const query = {}
 
-    if (access_token) query.access_token = access_token
+  if (code) query.code = code
 
-    // Active channels = updated_at >= 30 days old
-    if (active) query.updated_at = { $gte: dayjs().subtract(30, 'day') }
+  if (access_token) query.access_token = access_token
 
-    try {
-        const users = await User.find(query).sort('-updated_at');
-        return users
-    } catch (e) {
-        return false
-    }
+  // Active channels = updated_at >= 30 days old
+  if (active) query.updated_at = { $gte: dayjs().subtract(30, 'day') }
+
+  try {
+    const users = await User.find(query).sort('-updated_at')
+    return users
+  } catch (e) {
+    return false
+  }
 }
 
 const create = async (body) => {
-    body.created_at =  dayjs()
-    body.updated_at =  dayjs()
+  body.created_at = dayjs()
+  body.updated_at = dayjs()
 
-    try {
-        const user = await User.create(body);
-        return user
-    } catch (e) {
-        return false
-    }
+  try {
+    const user = await User.create(body)
+    return user
+  } catch (e) {
+    return false
+  }
 }
 
 const updateOne = async (_id, body) => {
-    body.updated_at =  dayjs()
+  body.updated_at = dayjs()
 
-    try {
-        await User.findOneAndUpdate({ _id: _id}, body);
-        const user = await findOne(_id) 
-        return user
-    } catch (e) {
-        return false
-    }
+  try {
+    await User.findOneAndUpdate({ _id: _id }, body)
+    const user = await findOne(_id)
+    return user
+  } catch (e) {
+    return false
+  }
 }
 
 const findOne = async (_id) => {
-    try {
-        const user = await User.findById(_id);
-        return user
-    } catch (e) {
-        return false
-    }
+  try {
+    const user = await User.findById(_id)
+    return user
+  } catch (e) {
+    return false
+  }
 }
 
 const deleteOne = async (_id) => {
-    try {
-        const user = await User.findByIdAndDelete(_id);
-        return user
-    } catch (e) {
-        return false
-    }
+  try {
+    const user = await User.findByIdAndDelete(_id)
+    return user
+  } catch (e) {
+    return false
+  }
 }
 
 export {
-    find,
-    create,
-    updateOne,
-    findOne,
-    deleteOne
+  find,
+  create,
+  updateOne,
+  findOne,
+  deleteOne
 }
