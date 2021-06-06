@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'
 
 const ConfigurationSchema = new mongoose.Schema({
-	code: String,
-	min_bits_to_wheel: Number,
-	created_at: Date,
-	updated_at: Date
-});
+  code: String,
+  min_bits_to_wheel: Number,
+  created_at: Date,
+  updated_at: Date
+})
 
-export default mongoose.model('Configuration', ConfigurationSchema);
+export default mongoose.model('Configuration', ConfigurationSchema)
