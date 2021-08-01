@@ -7,6 +7,7 @@ const SubscriberSchema = new mongoose.Schema({
   origin: String,
   quantity: Number,
   message: String,
+  plan: String,
   created_at: Date,
   updated_at: Date
 })

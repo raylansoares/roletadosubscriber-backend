@@ -62,7 +62,8 @@ const availableEvents = {
       code: broadcasterCode,
       origin: 'Bits',
       quantity: event.bits,
-      message: event.message || null
+      message: event.message || null,
+      plan: null
     })
 
     io.emit('selectPrize', {
@@ -78,7 +79,8 @@ const triggerWheel = async (broadcasterCode, event) => {
     code: broadcasterCode,
     origin: 'Points',
     quantity: event.reward.cost,
-    message: event.user_input || ''
+    message: event.user_input || '',
+    plan: null
   })
 
   io.emit('selectPrize', {
