@@ -45,7 +45,7 @@ config.io.on('connection', function (socket) {
         code: data.code
       })
 
-      if (findConfiguration[0] && findConfiguration[0].active_sub_plans) {
+      if (data.plan && findConfiguration[0] && findConfiguration[0].active_sub_plans) {
         const activeSubPlans = findConfiguration[0].active_sub_plans
         if (!activeSubPlans.includes(data.plan)) return
       }
