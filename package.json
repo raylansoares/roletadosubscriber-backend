@@ -19,7 +19,7 @@
     "babel-register": "^6.26.0"
   },
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "cors": "^2.8.5",
     "dayjs": "^1.10.5",
     "dotenv": "^10.0.0",
