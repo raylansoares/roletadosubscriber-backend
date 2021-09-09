@@ -7,6 +7,9 @@ import {
   create as createSubscriber,
   updateOne as updateSubscriber
 } from './services/subscribers'
+import {
+  find as findConfigurations
+} from './services/configurations'
 
 require('dotenv').config()
 
@@ -38,12 +41,22 @@ config.io.on('connection', function (socket) {
   // Event from chatbot
   socket.on('requestPrize', async function (data) {
     try {
+      const findConfiguration = await findConfigurations({
+        code: data.code
+      })
+
+      if (data.plan && findConfiguration[0] && findConfiguration[0].active_sub_plans) {
+        const activeSubPlans = findConfiguration[0].active_sub_plans
+        if (!activeSubPlans.includes(data.plan)) return
+      }
+
       const subscriber = await createSubscriber({
         username: data.username,
         code: data.code,
         origin: data.origin,
         quantity: data.quantity,
-        message: data.message
+        message: data.message,
+        plan: data.plan
       })
       // Event to frontend
       config.io.emit('selectPrize', {
