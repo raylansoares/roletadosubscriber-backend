@@ -97,11 +97,7 @@ const makeAuth = async (body) => {
       userData = await updateUser(findUser[0]._id, user)
     } else {
       userData = await createUser(user)
-
-      await Promise.all([
-        followChannel(twitchUserInfoResponse.data.data[0].id),
-        EventSub(twitchUserInfoResponse.data.data[0].id)
-      ])
+      await EventSub(twitchUserInfoResponse.data.data[0].id)
     }
 
     io.emit('joinChannel', {
@@ -113,23 +109,6 @@ const makeAuth = async (body) => {
   } catch (e) {
     return false
   }
-}
-
-const followChannel = async (userId) => {
-  try {
-    const twitchUserInfoUrl = 'https://api.twitch.tv/helix/users/follows'
-    const twitchUserInfoHeaders = {
-      'Client-ID': process.env.CLIENT_ID,
-      Authorization: `Bearer ${process.env.TOKEN}`
-    }
-    const data = {
-      from_id: process.env.USER_ID,
-      to_id: userId.toString()
-    }
-    return await axios.post(twitchUserInfoUrl, data, {
-      headers: twitchUserInfoHeaders
-    })
-  } catch (e) {}
 }
 
 const EventSub = async (userId) => {
