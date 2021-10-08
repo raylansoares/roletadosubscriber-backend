@@ -50,6 +50,11 @@ config.io.on('connection', function (socket) {
         if (!activeSubPlans.includes(data.plan)) return
       }
 
+      if (data.quantity && findConfiguration[0] && findConfiguration[0].subs_interval) {
+        const subsInterval = findConfiguration[0].subs_interval
+        if (data.quantity % subsInterval !== 0) return
+      }
+
       const subscriber = await createSubscriber({
         username: data.username,
         code: data.code,
