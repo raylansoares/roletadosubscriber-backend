@@ -11,7 +11,7 @@ Você pode acessar a aplicação em:
 
 ## 📦 Projetos Relacionados
 
-A aplicação é dividida em 4 projetos:
+A aplicação é dividida em 3 projetos:
 * [roletadosubscriber-backend](https://github.com/raylansoares/roletadosubscriber-backend)
 * [roletadosubscriber-chatbot](https://github.com/raylansoares/roletadosubscriber-chatbot)
 * [roletadosubscriber-frontend](https://github.com/raylansoares/roletadosubscriber-frontend)
