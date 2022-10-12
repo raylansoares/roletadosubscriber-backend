@@ -13,8 +13,8 @@ const find = async (queryParams) => {
 
   if (access_token) query.access_token = access_token
 
-  // Active channels = updated_at >= 30 days old
-  if (active) query.updated_at = { $gte: dayjs().subtract(30, 'day') }
+  // Active channels = updated_at >= 60 days old
+  if (active) query.updated_at = { $gte: dayjs().subtract(60, 'day') }
 
   try {
     const users = await User.find(query).sort('-updated_at')
