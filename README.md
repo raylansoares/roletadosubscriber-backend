@@ -1,6 +1,6 @@
 # <img src="https://raw.githubusercontent.com/raylansoares/roletadosubscriber-frontend/master/src/assets/images/logo_small.svg"> Roleta do Subscriber
 
-Aplicação construída para criar uma maior interação entre Streamers da Twitch e seus inscritos. Sempre que o canal recebe uma inscrição, a roleta aparece automaticamente através de um overlay e seleciona um dos prêmios previamente definidos pelo streamer, em seguida o prêmio também é anunciado no chat do canal.
+Aplicação construída para criar uma maior interação entre Streamers da Twitch e seus inscritos. Sempre que o canal recebe uma inscrição, a roleta aparece automaticamente através de um overlay e seleciona um dos prêmios previamente definidos pelo streamer, em seguida o prêmio também é anunciado no chat do canal. Além disso, é possível também integrar a roleta com as recompensas de pontos de canal e bits.
 
 > Feito com amor por [Raylan Campos](https://github.com/raylansoares) 🚀.
 
@@ -20,7 +20,7 @@ A aplicação é dividida em 3 projetos:
 ## ⚙️ Requisitos
 
 * [NodeJs](https://nodejs.org/en/)
-* [MongoDB](https://www.mongodb.com/)
+* [Docker](https://www.docker.com/)
 
 ## :construction_worker: Como rodar
 
@@ -60,7 +60,7 @@ $ vim .env
 
 # Inicie a aplicação
 
-$ npm run dev
+$ docker-compose up --build
 
 ```
 
@@ -129,7 +129,7 @@ Acesse: http://localhost:8080 para ver o resultado.
 
 Fique a vontade **para criar uma nova issue**. Se você já encontrou a solução para o problema, **eu amaria fazer o review do seu pull request**!
 
-## :closed_book: Licencia
+## :closed_book: Licença
 
 Esse projeto esta sobre [GNU license](./LICENSE).
 
