@@ -6,9 +6,16 @@ import {
   find as findUsers,
   create as createUser,
   updateOne as updateUser
-} from '../services/users'
+} from './users'
+import {
+  create as createSubscription,
+  deleteOne as deleteSubscription
+} from './subscriptions'
 
 dayjs.locale('pt-br')
+
+const CHEER_REWARD = 'channel.cheer'
+const POINTS_REWARD = 'channel.channel_points_custom_reward_redemption.add'
 
 const checkAuth = async (headers) => {
   try {
@@ -95,9 +102,11 @@ const makeAuth = async (body) => {
 
     if (findUser[0]) {
       userData = await updateUser(findUser[0]._id, user)
+      await EventSubDelete(user.code)
+      await EventSubCreate(userData.broadcaster_id)
     } else {
       userData = await createUser(user)
-      await EventSub(twitchUserInfoResponse.data.data[0].id)
+      await EventSubCreate(userData.broadcaster_id)
     }
 
     io.emit('joinChannel', {
@@ -111,7 +120,35 @@ const makeAuth = async (body) => {
   }
 }
 
-const EventSub = async (userId) => {
+const EventSubDelete = async (code) => {
+  try {
+    const [cheerSub, pointsSub] = await Promise.all([
+      deleteSubscription(code, CHEER_REWARD),
+      deleteSubscription(code, POINTS_REWARD)
+    ])
+  
+    const twitchEventSubUrl = 'https://api.twitch.tv/helix/eventsub/subscriptions'
+    const cheerParams = '?id=' + cheerSub.id
+    const pointsParams = '?id=' + pointsSub.id
+  
+    const twitchEventSubHeaders = {
+      'Client-ID': process.env.CLIENT_ID,
+      Authorization: `Bearer ${process.env.CLIENT_TOKEN}`,
+      'Content-Type': 'application/json'
+    }
+  
+    await Promise.all([
+      axios.delete(twitchEventSubUrl + cheerParams, {
+        headers: twitchEventSubHeaders
+      }),
+      axios.delete(twitchEventSubUrl + pointsParams, {
+        headers: twitchEventSubHeaders
+      })
+    ])
+  } catch (e) {}
+}
+
+const EventSubCreate = async (userId) => {
   try {
     const twitchEventSubUrl = 'https://api.twitch.tv/helix/eventsub/subscriptions'
 
@@ -122,7 +159,7 @@ const EventSub = async (userId) => {
     }
 
     const cheerData = {
-      type: 'channel.cheer',
+      type: CHEER_REWARD,
       version: '1',
       condition: {
         broadcaster_user_id: userId
@@ -135,7 +172,7 @@ const EventSub = async (userId) => {
     }
 
     const channelPointsData = {
-      type: 'channel.channel_points_custom_reward_redemption.add',
+      type: POINTS_REWARD,
       version: '1',
       condition: {
         broadcaster_user_id: userId
@@ -147,13 +184,18 @@ const EventSub = async (userId) => {
       }
     }
 
-    await Promise.all([
+    const [cheer, points] = await Promise.all([
       axios.post(twitchEventSubUrl, cheerData, {
         headers: twitchEventSubHeaders
       }),
       axios.post(twitchEventSubUrl, channelPointsData, {
         headers: twitchEventSubHeaders
       })
+    ])
+
+    await Promise.all([
+      createSubscription(cheer.data.data[0]),
+      createSubscription(points.data.data[0])
     ])
   } catch (e) {}
 }
