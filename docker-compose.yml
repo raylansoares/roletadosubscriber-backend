@@ -1,0 +1,33 @@
+version: '3'
+services:
+  mongodb:
+    container_name: mongodb
+    image: mongo
+    hostname: mongodb
+    restart: on-failure
+    ports:
+      - "27027:27017"
+    networks: 
+      wheel:
+        ipv4_address: 192.168.20.10
+  app:
+    build: .
+    expose:
+      - 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+    depends_on:
+      - mongodb
+    networks:
+      wheel:
+        ipv4_address: 192.168.20.12
+networks:
+  wheel:
+    ipam: 
+      driver: default
+      config: 
+        - subnet: 192.168.20.0/24
+volumes:
+  nodemodules: {}
