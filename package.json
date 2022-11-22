@@ -27,7 +27,7 @@
     "fs": "0.0.1-security",
     "mongoose": "^5.12.12",
     "node-dev": "^7.0.0",
-    "socket.io": "^4.1.2",
+    "socket.io": "^4.5.3",
     "standard": "^16.0.3"
   }
 }
