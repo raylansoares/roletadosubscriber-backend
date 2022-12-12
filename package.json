@@ -23,7 +23,7 @@
     "cors": "^2.8.5",
     "dayjs": "^1.10.5",
     "dotenv": "^10.0.0",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "fs": "0.0.1-security",
     "mongoose": "^5.12.12",
     "node-dev": "^7.0.0",
